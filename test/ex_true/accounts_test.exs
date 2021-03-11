@@ -1,5 +1,6 @@
 defmodule ExTrue.AccountsTest do
   use ExTrue.DataCase
+  use Bamboo.Test
 
   alias ExTrue.Accounts
 
@@ -32,6 +33,8 @@ defmodule ExTrue.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+      expected_email = ExTrue.Accounts.Email.confirmation_email(user)
+      assert_delivered_email(expected_email)
       assert user.email == "email@example.com"
       refute user.password_hash == "some password_hash"
       assert user.password == "some password_hash"
@@ -43,6 +46,8 @@ defmodule ExTrue.AccountsTest do
 
       assert {:error, %Ecto.Changeset{}} =
                Accounts.create_user(%{email: "no at sign", passowrd: "no"})
+
+      assert_no_emails_delivered()
     end
 
     test "update_user/2 with valid data updates the user" do

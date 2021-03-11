@@ -1,11 +1,11 @@
 defmodule ExTrueWeb.UserControllerTest do
   use ExTrueWeb.ConnCase
+  use Bamboo.Test
 
   alias ExTrue.Accounts
-  alias ExTrue.Accounts.User
 
   @create_attrs %{email: "email@example.com", password: "some password_hash"}
-  @update_attrs %{email: "newemail@example.com", password: "some updated password_hash"}
+  # @update_attrs %{email: "newemail@example.com", password: "some updated password_hash"}
   @invalid_attrs %{email: nil, password: nil}
 
   def fixture(:user) do
@@ -30,6 +30,9 @@ defmodule ExTrueWeb.UserControllerTest do
                "created_at" => created_at,
                "updated_at" => updated_at
              } = json_response(conn, 201)["data"]
+
+      expected_email = ExTrue.Accounts.Email.confirmation_email(Accounts.get_user!(id))
+      assert_delivered_email(expected_email)
 
       assert String.match?(
                created_at,
@@ -88,8 +91,8 @@ defmodule ExTrueWeb.UserControllerTest do
   #   end
   # end
 
-  defp create_user(_) do
-    user = fixture(:user)
-    %{user: user}
-  end
+  # defp create_user(_) do
+  #   user = fixture(:user)
+  #   %{user: user}
+  # end
 end
