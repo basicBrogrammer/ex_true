@@ -13,16 +13,19 @@ defmodule ExTrueWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Other scopes may use custom stacks.
   scope "/", ExTrueWeb do
+    pipe_through :api
+
+    post "/signup", UserController, :create
+    # resources "/users", UserController, except: [:new, :edit]
+  end
+
+  scope "/admin", ExTrueWeb do
     pipe_through :browser
 
     get "/", PageController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", ExTrueWeb do
-  #   pipe_through :api
-  # end
 
   # Enables LiveDashboard only for development
   #

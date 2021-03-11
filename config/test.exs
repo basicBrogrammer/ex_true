@@ -20,3 +20,6 @@ config :ex_true, ExTrueWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# speed up password hashing in tests
+config :pbkdf2_elixir, :rounds, 1
