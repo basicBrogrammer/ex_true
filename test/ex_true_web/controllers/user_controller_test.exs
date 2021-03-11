@@ -41,7 +41,11 @@ defmodule ExTrueWeb.UserControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
+
+      assert json_response(conn, 422)["errors"] == %{
+               "email" => ["can't be blank"],
+               "password" => ["can't be blank"]
+             }
     end
   end
 

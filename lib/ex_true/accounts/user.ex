@@ -17,6 +17,7 @@ defmodule ExTrue.Accounts.User do
     |> validate_required([:email, :password])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:email, min: 2)
+    |> unique_constraint(:email)
     |> validate_length(:password, min: 6, max: 100)
     |> put_pass_hash()
   end

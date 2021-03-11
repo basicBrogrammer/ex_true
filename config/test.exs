@@ -23,3 +23,5 @@ config :logger, level: :warn
 
 # speed up password hashing in tests
 config :pbkdf2_elixir, :rounds, 1
+
+config :ex_true, ExTrue.Mailer, adapter: Bamboo.TestAdapter

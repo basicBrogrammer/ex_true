@@ -6,7 +6,7 @@ defmodule ExTrue.Accounts do
   import Ecto.Query, warn: false
   alias ExTrue.Repo
 
-  alias ExTrue.Accounts.User
+  alias ExTrue.Accounts.{User, Email}
 
   @doc """
   Returns the list of users.
