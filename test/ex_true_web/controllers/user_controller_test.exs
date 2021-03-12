@@ -26,7 +26,7 @@ defmodule ExTrueWeb.UserControllerTest do
       assert %{
                "id" => id,
                "email" => "email@example.com",
-               "confirmation_sent_at" => "tbd",
+               "confirmation_sent_at" => confirmation_sent_at,
                "created_at" => created_at,
                "updated_at" => updated_at
              } = json_response(conn, 201)["data"]
@@ -40,6 +40,7 @@ defmodule ExTrueWeb.UserControllerTest do
              )
 
       assert created_at == updated_at
+      assert get_date(created_at) == get_date(confirmation_sent_at)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -95,4 +96,8 @@ defmodule ExTrueWeb.UserControllerTest do
   #   user = fixture(:user)
   #   %{user: user}
   # end
+  defp get_date(pg_date) do
+    [date | _] = pg_date |> String.split("T")
+    date
+  end
 end

@@ -50,7 +50,10 @@ defmodule ExTrue.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
-    with {:ok, user} <- %User{} |> User.registration_changeset(attrs) |> Repo.insert() do
+    with {:ok, user} <-
+           %User{}
+           |> User.registration_changeset(attrs)
+           |> Repo.insert(returning: [:confirmation_sent_at]) do
       Email.confirmation_email(user) |> ExTrue.Mailer.deliver_later()
       {:ok, user}
     end

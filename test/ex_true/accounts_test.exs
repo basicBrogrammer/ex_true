@@ -33,8 +33,6 @@ defmodule ExTrue.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      expected_email = ExTrue.Accounts.Email.confirmation_email(user)
-      assert_delivered_email(expected_email)
 
       assert user.email == "email@example.com"
       refute user.password_hash == "some password_hash"
@@ -50,6 +48,20 @@ defmodule ExTrue.AccountsTest do
                NaiveDateTime.to_date(NaiveDateTime.local_now())
 
       assert %User{password: nil} = Accounts.get_user!(user.id)
+    end
+
+    test "create_user/1 sends a confirmation email" do
+      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
+
+      expected_email = ExTrue.Accounts.Email.confirmation_email(user)
+
+      assert_delivered_email(expected_email)
+
+      assert expected_email.html_body =~
+               "<p>Your confirmation code is #{user.confirmation_token}</p>"
+
+      assert expected_email.text_body =~
+               "Your confirmation code is #{user.confirmation_token}"
     end
 
     test "create_user/1 with invalid data returns error changeset" do

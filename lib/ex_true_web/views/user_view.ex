@@ -16,7 +16,7 @@ defmodule ExTrueWeb.UserView do
       email: user.email,
       created_at: user.inserted_at,
       updated_at: user.updated_at,
-      confirmation_sent_at: "tbd"
+      confirmation_sent_at: user.confirmation_sent_at
     }
   end
 end
