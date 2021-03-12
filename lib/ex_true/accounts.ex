@@ -106,4 +106,20 @@ defmodule ExTrue.Accounts do
   def change_user(%User{} = user, attrs \\ %{}) do
     User.changeset(user, attrs)
   end
+
+  def verify_user(%{"type" => "signup", "token" => token, "password" => pass}) do
+    user = Repo.get_by(User, %{confirmation_token: token})
+
+    cond do
+      user && Pbkdf2.verify_pass(pass, user.password_hash) ->
+        user |> User.verification_changeset() |> Repo.update()
+
+      user ->
+        {:error, :unauthorized}
+
+      true ->
+        Pbkdf2.no_user_verify()
+        {:error, :not_found}
+    end
+  end
 end

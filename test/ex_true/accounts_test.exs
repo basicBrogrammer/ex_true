@@ -7,8 +7,8 @@ defmodule ExTrue.AccountsTest do
   describe "users" do
     alias ExTrue.Accounts.User
 
-    @valid_attrs %{email: "email@example.com", password: "some password_hash"}
-    @update_attrs %{email: "newemail@example.com", password: "some updated password_hash"}
+    @valid_attrs %{email: "email@example.com", password: "password"}
+    @update_attrs %{email: "newemail@example.com", password: "newpassword"}
     @invalid_attrs %{email: nil, password: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -35,8 +35,8 @@ defmodule ExTrue.AccountsTest do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
 
       assert user.email == "email@example.com"
-      refute user.password_hash == "some password_hash"
-      assert user.password == "some password_hash"
+      refute user.password_hash == "password"
+      assert user.password == "password"
 
       assert user.confirmation_token > 99999
       assert user.confirmation_token < 999_999
@@ -75,11 +75,11 @@ defmodule ExTrue.AccountsTest do
 
     test "update_user/2 with valid data updates the user" do
       og_user = user_fixture()
-      assert Pbkdf2.verify_pass("some password_hash", og_user.password_hash)
+      assert Pbkdf2.verify_pass("password", og_user.password_hash)
       assert {:ok, %User{} = user} = Accounts.update_user(og_user, @update_attrs)
       assert user.email == "newemail@example.com"
-      refute Pbkdf2.verify_pass("some password_hash", user.password_hash)
-      assert Pbkdf2.verify_pass("some updated password_hash", user.password_hash)
+      refute Pbkdf2.verify_pass("password", user.password_hash)
+      assert Pbkdf2.verify_pass("newpassword", user.password_hash)
     end
 
     test "update_user/2 with invalid data returns error changeset" do
@@ -97,6 +97,42 @@ defmodule ExTrue.AccountsTest do
     test "change_user/1 returns a user changeset" do
       user = user_fixture()
       assert %Ecto.Changeset{} = Accounts.change_user(user)
+    end
+
+    test "verify_user/2 [confirmation] confirms the user's registration" do
+      user = user_fixture()
+      assert user.confirmed_at == nil
+      assert user.confirmation_token |> is_integer
+
+      {:ok, user} =
+        Accounts.verify_user(%{
+          "type" => "signup",
+          "token" => user.confirmation_token,
+          "password" => @valid_attrs.password
+        })
+
+      refute user.confirmed_at == nil
+      assert user.confirmation_token == nil
+
+      assert NaiveDateTime.to_date(user.confirmed_at) ==
+               NaiveDateTime.to_date(NaiveDateTime.local_now())
+    end
+
+    test "verify_user/2 [confirmation] with an incorrect password" do
+      user = user_fixture()
+      assert user.confirmed_at == nil
+      assert user.confirmation_token |> is_integer
+
+      assert {:error, :unauthorized} =
+               Accounts.verify_user(%{
+                 "type" => "signup",
+                 "token" => user.confirmation_token,
+                 "password" => "invalid"
+               })
+
+      user = Accounts.get_user!(user.id)
+      assert user.confirmed_at == nil
+      assert user.confirmation_token |> is_integer
     end
   end
 end

@@ -34,6 +34,13 @@ defmodule ExTrue.Accounts.User do
     |> put_pass_hash()
   end
 
+  def verification_changeset(user) do
+    user
+    |> change()
+    |> put_change(:confirmed_at, NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second))
+    |> put_change(:confirmation_token, nil)
+  end
+
   defp put_pass_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
