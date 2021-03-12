@@ -50,7 +50,7 @@ defmodule ExTrue.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
-    with {:ok, user} <- %User{} |> User.changeset(attrs) |> Repo.insert() do
+    with {:ok, user} <- %User{} |> User.registration_changeset(attrs) |> Repo.insert() do
       Email.confirmation_email(user) |> ExTrue.Mailer.deliver_later()
       {:ok, user}
     end
@@ -70,7 +70,8 @@ defmodule ExTrue.Accounts do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
+    # TODO: (tmp) fix when implementing PUT /user
+    |> User.registration_changeset(attrs)
     |> Repo.update()
   end
 

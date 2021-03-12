@@ -35,9 +35,20 @@ defmodule ExTrue.AccountsTest do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
       expected_email = ExTrue.Accounts.Email.confirmation_email(user)
       assert_delivered_email(expected_email)
+
       assert user.email == "email@example.com"
       refute user.password_hash == "some password_hash"
       assert user.password == "some password_hash"
+
+      assert user.confirmation_token > 99999
+      assert user.confirmation_token < 999_999
+      assert user.confirmed_at == nil
+
+      assert %User{confirmation_sent_at: confirmation_sent_at} = Accounts.get_user!(user.id)
+
+      assert NaiveDateTime.to_date(confirmation_sent_at) ==
+               NaiveDateTime.to_date(NaiveDateTime.local_now())
+
       assert %User{password: nil} = Accounts.get_user!(user.id)
     end
 
