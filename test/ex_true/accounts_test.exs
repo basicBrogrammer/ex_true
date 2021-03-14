@@ -129,10 +129,6 @@ defmodule ExTrue.AccountsTest do
                  "token" => user.confirmation_token,
                  "password" => "invalid"
                })
-
-      user = Accounts.get_user!(user.id)
-      assert user.confirmed_at == nil
-      assert user.confirmation_token |> is_integer
     end
   end
 end

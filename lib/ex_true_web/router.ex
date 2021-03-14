@@ -23,6 +23,7 @@ defmodule ExTrueWeb.Router do
     pipe_through :api
 
     post "/signup", UserController, :create
+    post "/verify", VerificationController, :create
     # resources "/users", UserController, except: [:new, :edit]
   end
 
